@@ -1,0 +1,36 @@
+
+> ai-ppt-frontend@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.0
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 16s
+ ○ Compiling / ...
+ ✓ Compiled / in 1021ms (679 modules)
+ GET / 200 in 1272ms
+ ✓ Compiled in 273ms (305 modules)
+ ✓ Compiled /_not-found in 197ms (668 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 323ms
+ ⨯ Module not found: Error: Can't resolve 'next-flight-client-entry-loader' in '/Users/george/Documents/code/ai-ppt/frontend'
+[Error: ENOENT: no such file or directory, scandir '/Users/george/Documents/code/ai-ppt/frontend/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/george/Documents/code/ai-ppt/frontend/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/george/Documents/code/ai-ppt/frontend/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/george/Documents/code/ai-ppt/frontend/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/george/Documents/code/ai-ppt/frontend/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/george/Documents/code/ai-ppt/frontend/app'
+}
+ ⨯ Module not found: Error: Can't resolve 'next-flight-client-entry-loader' in '/Users/george/Documents/code/ai-ppt/frontend'
