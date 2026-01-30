@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 import subprocess
+import shutil
+import traceback
 
 # 设置库路径以解决 macOS 上的 GDI+ 库问题
 if sys.platform == "darwin":  # macOS
@@ -213,33 +215,69 @@ class FileConverter:
         except Exception as e:
             logger.error(f"PDF 转 PPT 失败: {str(e)}")
             return False
-    
-    def _fallback_ppt_to_pdf_with_unoconv(self, input_path: str, output_path: str) -> bool:
-        """
-        使用 unoconv 作为备选方案进行 PPT 到 PDF 的转换
-        """
-        logger.info(f"使用 unoconv 作为备选方案进行 PPT 转 PDF: {input_path} -> {output_path}")
-        
-        try:
-            # 确保输出目录存在
-            output_dir = os.path.dirname(output_path)
-            if output_dir:
-                os.makedirs(output_dir, exist_ok=True)
-            
-            # 使用 unoconv 进行转换
-            cmd = ["unoconv", "-f", "pdf", "-o", output_path, input_path]
+
+def _fallback_ppt_to_pdf_with_unoconv(self, input_path: str, output_path: str) -> bool:
+    """
+    使用 unoconv 或 LibreOffice (soffice) 作为备选方案进行 PPT 到 PDF 的转换
+    先尝试 unoconv，如果不可用或失败再尝试 soffice（libreoffice）。
+    """
+    logger.info(f"使用 unoconv/soffice 作为备选方案进行 PPT 转 PDF: {input_path} -> {output_path}")
+    try:
+        output_dir = os.path.dirname(output_path)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+
+        # 1) 尝试 unoconv
+        unoconv_path = shutil.which("unoconv")
+        if unoconv_path:
+            cmd = [unoconv_path, "-f", "pdf", "-o", output_path, input_path]
+            logger.debug(f"调用 unoconv: {' '.join(cmd)}")
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-            
-            if result.returncode == 0:
-                logger.info(f"Fallback PPT to PDF successful: {output_path}")
+            logger.debug(f"unoconv returncode={result.returncode} stdout={result.stdout} stderr={result.stderr}")
+            if result.returncode == 0 and os.path.exists(output_path):
+                logger.info(f"Fallback (unoconv) PPT to PDF 成功: {output_path}")
                 return True
             else:
-                logger.error(f"Fallback PPT to PDF failed: {result.stderr}")
-                return False
-                
-        except subprocess.TimeoutExpired:
-            logger.error("Fallback PPT to PDF timed out")
-            return False
-        except Exception as e:
-            logger.error(f"Fallback PPT to PDF error: {str(e)}")
-            return False
+                logger.warning(f"unoconv 转换失败: returncode={result.returncode} stderr={result.stderr}")
+
+        else:
+            logger.info("未检测到 unoconv 可执行文件，尝试使用 libreoffice (soffice)")
+
+        # 2) 尝试 libreoffice soffice（更普遍）
+        soffice_path = shutil.which("soffice") or shutil.which("libreoffice")
+        if soffice_path:
+            # 使用 LibreOffice 命令行把文件转换到 output_dir，然后移动/重命名到 output_path
+            outdir = output_dir if output_dir else os.path.dirname(os.path.abspath(output_path)) or "."
+            cmd = [soffice_path, "--headless", "--convert-to", "pdf", "--outdir", outdir, input_path]
+            logger.debug(f"调用 soffice: {' '.join(cmd)}")
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            logger.debug(f"soffice returncode={result.returncode} stdout={result.stdout} stderr={result.stderr}")
+            # soffice 会在 outdir 下生成与输入同名但扩展名为 .pdf 的文件
+            src_pdf = os.path.join(outdir, os.path.splitext(os.path.basename(input_path))[0] + ".pdf")
+            if result.returncode == 0 and os.path.exists(src_pdf):
+                # 移动到期望的 output_path（覆盖）
+                if os.path.abspath(src_pdf) != os.path.abspath(output_path):
+                    try:
+                        os.replace(src_pdf, output_path)
+                    except Exception:
+                        # 如果移动失败，尝试复制
+                        import shutil as _shutil
+                        _shutil.copyfile(src_pdf, output_path)
+                logger.info(f"Fallback (soffice) PPT to PDF 成功: {output_path}")
+                return True
+            else:
+                logger.warning(f"soffice 转换失败: returncode={result.returncode} stderr={result.stderr}")
+        else:
+            logger.error("未检测到 soffice/libreoffice 可执行文件，请安装 libreoffice 或 unoconv")
+
+        logger.error("Fallback PPT to PDF 最终失败")
+        return False
+
+    except subprocess.TimeoutExpired:
+        logger.error("Fallback PPT to PDF 超时")
+        logger.debug(traceback.format_exc())
+        return False
+    except Exception as e:
+        logger.error(f"Fallback PPT to PDF 出现错误: {str(e)}")
+        logger.debug(traceback.format_exc())
+        return False

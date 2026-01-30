@@ -1,2 +1,50 @@
 INFO:     Will watch for changes in these directories: ['/Users/george/Documents/code/ai-ppt/backend']
-ERROR:    [Errno 48] Address already in use
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [71431] using WatchFiles
+/Users/george/Documents/code/ai-ppt/backend/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.15) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+INFO:     Started server process [71434]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:62337 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62339 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62371 - "POST /api/convert?target_format=pptx HTTP/1.1" 200 OK
+[INFO] 开始 PDF 转 PPT: ./output/temp/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458_in.pdf
+[INFO] 处理第 1 页...
+[INFO] 处理第 2 页...
+[INFO] PPT 生成成功: ./output/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458_out.pptx
+INFO:     127.0.0.1:62371 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62371 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62387 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62371 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62388 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62391 - "GET /api/download/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+[INFO] 执行转换命令: ['/Applications/LibreOffice.app/Contents/MacOS/soffice', '--headless', '--convert-to', 'pdf', '--outdir', '/Users/george/Documents/code/ai-ppt/backend/output', '/Users/george/Documents/code/ai-ppt/backend/output/temp/5d94eb61-c30e-423a-a888-6d41a91523a6_in.docx']
+[INFO] 转换成功: ./output/5d94eb61-c30e-423a-a888-6d41a91523a6_out.pdf
+INFO:     127.0.0.1:62685 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62684 - "POST /api/convert?target_format=pdf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62685 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62684 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62685 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62723 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62724 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62684 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62725 - "GET /api/download/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62726 - "GET /api/download/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62727 - "GET /api/download/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
+[INFO] 执行转换命令: ['/Applications/LibreOffice.app/Contents/MacOS/soffice', '--headless', '--convert-to', 'pdf', '--outdir', '/Users/george/Documents/code/ai-ppt/backend/output', '/Users/george/Documents/code/ai-ppt/backend/output/temp/c01c49a8-9fe6-4e42-9cb3-b3b9bfb41c9a_in.docx']
+[INFO] 转换成功: ./output/c01c49a8-9fe6-4e42-9cb3-b3b9bfb41c9a_out.pdf
+INFO:     127.0.0.1:63042 - "GET /api/task/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63041 - "POST /api/convert?target_format=pdf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63042 - "GET /api/task/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63041 - "GET /api/task/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63071 - "GET /api/download/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63071 - "GET /api/download/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63071 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63070 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63127 - "GET /api/models HTTP/1.1" 200 OK
+[INFO] 执行转换命令: ['/Applications/LibreOffice.app/Contents/MacOS/soffice', '--headless', '--convert-to', 'pdf', '--outdir', '/Users/george/Documents/code/ai-ppt/backend/output', '/Users/george/Documents/code/ai-ppt/backend/output/temp/591ac3be-8fb4-437e-b65e-eb483d92002c_in.docx']
+[INFO] 转换成功: ./output/591ac3be-8fb4-437e-b65e-eb483d92002c_out.pdf
+INFO:     127.0.0.1:63149 - "POST /api/convert?target_format=pdf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63149 - "GET /api/task/591ac3be-8fb4-437e-b65e-eb483d92002c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63174 - "GET /api/download/591ac3be-8fb4-437e-b65e-eb483d92002c HTTP/1.1" 200 OK

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     private_api_url: str = ""
     
     # 服务配置
-    api_host: str = "0.0.0.0"
+    api_host: str = "127.0.0.1"
     api_port: int = 8000
     cors_origins: str = "http://localhost:3000"
     
