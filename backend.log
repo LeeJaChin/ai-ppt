@@ -1,50 +1,158 @@
 INFO:     Will watch for changes in these directories: ['/Users/george/Documents/code/ai-ppt/backend']
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [71431] using WatchFiles
+INFO:     Started reloader process [77830] using WatchFiles
 /Users/george/Documents/code/ai-ppt/backend/venv/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.15) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
   warnings.warn(message, FutureWarning)
-INFO:     Started server process [71434]
+INFO:     Started server process [77833]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     127.0.0.1:62337 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62339 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62371 - "POST /api/convert?target_format=pptx HTTP/1.1" 200 OK
-[INFO] 开始 PDF 转 PPT: ./output/temp/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458_in.pdf
-[INFO] 处理第 1 页...
-[INFO] 处理第 2 页...
-[INFO] PPT 生成成功: ./output/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458_out.pptx
-INFO:     127.0.0.1:62371 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62371 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62387 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62371 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62388 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62391 - "GET /api/download/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-[INFO] 执行转换命令: ['/Applications/LibreOffice.app/Contents/MacOS/soffice', '--headless', '--convert-to', 'pdf', '--outdir', '/Users/george/Documents/code/ai-ppt/backend/output', '/Users/george/Documents/code/ai-ppt/backend/output/temp/5d94eb61-c30e-423a-a888-6d41a91523a6_in.docx']
-[INFO] 转换成功: ./output/5d94eb61-c30e-423a-a888-6d41a91523a6_out.pdf
-INFO:     127.0.0.1:62685 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62684 - "POST /api/convert?target_format=pdf HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62685 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62684 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62685 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62723 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62724 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62684 - "GET /api/task/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62725 - "GET /api/download/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62726 - "GET /api/download/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62727 - "GET /api/download/a48c7d55-e2a9-48a2-bf44-f6e3d1b6e458 HTTP/1.1" 200 OK
-[INFO] 执行转换命令: ['/Applications/LibreOffice.app/Contents/MacOS/soffice', '--headless', '--convert-to', 'pdf', '--outdir', '/Users/george/Documents/code/ai-ppt/backend/output', '/Users/george/Documents/code/ai-ppt/backend/output/temp/c01c49a8-9fe6-4e42-9cb3-b3b9bfb41c9a_in.docx']
-[INFO] 转换成功: ./output/c01c49a8-9fe6-4e42-9cb3-b3b9bfb41c9a_out.pdf
-INFO:     127.0.0.1:63042 - "GET /api/task/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63041 - "POST /api/convert?target_format=pdf HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63042 - "GET /api/task/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63041 - "GET /api/task/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63071 - "GET /api/download/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:63071 - "GET /api/download/5d94eb61-c30e-423a-a888-6d41a91523a6 HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:63071 - "GET /favicon.ico HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:63070 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63127 - "GET /api/models HTTP/1.1" 200 OK
-[INFO] 执行转换命令: ['/Applications/LibreOffice.app/Contents/MacOS/soffice', '--headless', '--convert-to', 'pdf', '--outdir', '/Users/george/Documents/code/ai-ppt/backend/output', '/Users/george/Documents/code/ai-ppt/backend/output/temp/591ac3be-8fb4-437e-b65e-eb483d92002c_in.docx']
-[INFO] 转换成功: ./output/591ac3be-8fb4-437e-b65e-eb483d92002c_out.pdf
-INFO:     127.0.0.1:63149 - "POST /api/convert?target_format=pdf HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63149 - "GET /api/task/591ac3be-8fb4-437e-b65e-eb483d92002c HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63174 - "GET /api/download/591ac3be-8fb4-437e-b65e-eb483d92002c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53017 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53017 - "GET /api/models HTTP/1.1" 200 OK
+[INFO] 收到大纲生成请求: 模型=Qwen2.5-72B, 内容长度=12
+[INFO] 正在为模型 Qwen2.5-72B 创建适配器
+[INFO] 使用私有化适配器: Qwen2.5-72B
+[INFO] 开始调用私有化 AI 模型: Qwen2.5-72B, 期望页数: 5
+[INFO] HTTP Request: POST http://10.8.71.41:8080/v1/chat/completions "HTTP/1.1 200 OK"
+[INFO] 收到 AI 原始响应 (长度=3208)
+INFO:     127.0.0.1:53027 - "POST /api/generate-outline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53027 - "OPTIONS /api/generate-ppt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53027 - "POST /api/generate-ppt HTTP/1.1" 200 OK
+[INFO] 正在初始化默认 Presentation
+[INFO] PPT生成开始: 标题=2025年财务部总结汇报, 幻灯片数量=5, 输出路径=./output/ppt_20260212_152624_bf064a2a.pptx
+[INFO] 模板模式检查: template_mode=False, 已有幻灯片数=False
+[INFO] 添加标题幻灯片
+[INFO] 开始添加 5 个幻灯片
+[INFO] 处理第 1/5 张幻灯片: 标题='年度财务概况', 布局=big_number
+[INFO] 添加大数据幻灯片: 年度财务概况
+[INFO] 处理第 2/5 张幻灯片: 标题='收入结构分析', 布局=pie_chart
+[INFO] 添加饼图幻灯片: 收入结构分析
+[INFO] 处理第 3/5 张幻灯片: 标题='成本与费用分析', 布局=stacked_chart
+[INFO] 添加堆积图幻灯片: 成本与费用分析
+[INFO] 处理第 4/5 张幻灯片: 标题='财务风险管理', 布局=line_chart
+[INFO] 添加折线图幻灯片: 财务风险管理
+[INFO] 处理第 5/5 张幻灯片: 标题='未来财务战略', 布局=timeline
+[INFO] 添加时间轴幻灯片: 未来财务战略
+[INFO] 所有幻灯片添加完成
+[INFO] 开始保存PPT到: ./output/ppt_20260212_152624_bf064a2a.pptx
+[INFO] PPT保存完成: ./output/ppt_20260212_152624_bf064a2a.pptx
+INFO:     127.0.0.1:53247 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53247 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53250 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53292 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53317 - "OPTIONS /api/generate-outline HTTP/1.1" 200 OK
+[INFO] 收到大纲生成请求: 模型=Qwen2.5-72B, 内容长度=10
+[INFO] 正在为模型 Qwen2.5-72B 创建适配器
+[INFO] 使用私有化适配器: Qwen2.5-72B
+[INFO] 开始调用私有化 AI 模型: Qwen2.5-72B, 期望页数: 10
+[INFO] HTTP Request: POST http://10.8.71.41:8080/v1/chat/completions "HTTP/1.1 200 OK"
+[INFO] 收到 AI 原始响应 (长度=5298)
+[ERROR] 参数错误: 10 validation errors for OutlineResponse
+slides.0.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='title | bullets', input_type=str]
+slides.1.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='column_chart | bullets', input_type=str]
+slides.2.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='timeline | bullets', input_type=str]
+slides.3.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='process | bullets', input_type=str]
+slides.4.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='stacked_chart | bullets', input_type=str]
+slides.5.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='pie_chart | bullets', input_type=str]
+slides.6.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='line_chart | bullets', input_type=str]
+slides.7.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='column_chart | bullets', input_type=str]
+slides.8.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='process | bullets', input_type=str]
+slides.9.layout
+  Input should be 'title', 'bullets', 'column', 'process', 'column_chart', 'bar_chart', 'line_chart', 'pie_chart', 'area_chart', 'stacked_chart', 'timeline', 'big_number' or 'thanks' [type=enum, input_value='big_number | bullets', input_type=str]
+INFO:     127.0.0.1:53317 - "POST /api/generate-outline HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:53528 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53530 - "GET /api/models HTTP/1.1" 200 OK
+[INFO] 收到大纲生成请求: 模型=Qwen2.5-72B, 内容长度=10
+[INFO] 正在为模型 Qwen2.5-72B 创建适配器
+[INFO] 使用私有化适配器: Qwen2.5-72B
+[INFO] 开始调用私有化 AI 模型: Qwen2.5-72B, 期望页数: 10
+[INFO] HTTP Request: POST http://10.8.71.41:8080/v1/chat/completions "HTTP/1.1 200 OK"
+[INFO] 收到 AI 原始响应 (长度=5366)
+INFO:     127.0.0.1:53552 - "POST /api/generate-outline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53552 - "POST /api/generate-ppt HTTP/1.1" 200 OK
+[INFO] 正在初始化默认 Presentation
+[INFO] PPT生成开始: 标题=2025年研发部汇报, 幻灯片数量=10, 输出路径=./output/ppt_20260212_153238_c94aa508.pptx
+[INFO] 模板模式检查: template_mode=False, 已有幻灯片数=False
+[INFO] 添加标题幻灯片
+[INFO] 开始添加 10 个幻灯片
+[INFO] 处理第 1/10 张幻灯片: 标题='研发部年度回顾', 布局=column_chart
+[INFO] 添加柱状图幻灯片: 研发部年度回顾
+[INFO] 处理第 2/10 张幻灯片: 标题='关键技术突破', 布局=process
+[INFO] 添加流程幻灯片: 关键技术突破
+[INFO] 处理第 3/10 张幻灯片: 标题='研发团队建设', 布局=pie_chart
+[INFO] 添加饼图幻灯片: 研发团队建设
+[INFO] 处理第 4/10 张幻灯片: 标题='研发成果应用', 布局=stacked_chart
+[INFO] 添加堆积图幻灯片: 研发成果应用
+[INFO] 处理第 5/10 张幻灯片: 标题='研发投入分析', 布局=area_chart
+[INFO] 添加面积图幻灯片: 研发投入分析
+[INFO] 处理第 6/10 张幻灯片: 标题='研发项目管理', 布局=column
+[INFO] 添加双栏幻灯片: 研发项目管理
+[INFO] 处理第 7/10 张幻灯片: 标题='研发创新机制', 布局=process
+[INFO] 添加流程幻灯片: 研发创新机制
+[INFO] 处理第 8/10 张幻灯片: 标题='未来研发方向', 布局=timeline
+[INFO] 添加时间轴幻灯片: 未来研发方向
+[INFO] 处理第 9/10 张幻灯片: 标题='研发部KPI', 布局=big_number
+[INFO] 添加大数据幻灯片: 研发部KPI
+[INFO] 处理第 10/10 张幻灯片: 标题='感谢与展望', 布局=thanks
+[INFO] 添加感谢幻灯片: 感谢与展望
+[INFO] 所有幻灯片添加完成
+[INFO] 开始保存PPT到: ./output/ppt_20260212_153238_c94aa508.pptx
+[INFO] PPT保存完成: ./output/ppt_20260212_153238_c94aa508.pptx
+INFO:     127.0.0.1:53552 - "GET /api/task/c94aa508-c032-4da0-bb24-f7321e097b6d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53666 - "GET /api/download/c94aa508-c032-4da0-bb24-f7321e097b6d HTTP/1.1" 200 OK
+[INFO] 收到大纲生成请求: 模型=DeepSeek-R1, 内容长度=10
+[INFO] 正在为模型 DeepSeek-R1 创建适配器
+[INFO] 使用私有化适配器: DeepSeek-R1
+[INFO] 开始调用私有化 AI 模型: DeepSeek-R1, 期望页数: 5
+[INFO] HTTP Request: POST http://10.8.71.41:8080/v1/chat/completions "HTTP/1.1 200 OK"
+[INFO] 收到 AI 原始响应 (长度=3586)
+INFO:     127.0.0.1:53798 - "POST /api/generate-outline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53968 - "POST /api/generate-ppt HTTP/1.1" 200 OK
+[INFO] 正在初始化默认 Presentation
+[INFO] PPT生成开始: 标题=2025财务战略规划与绩效展望, 幻灯片数量=5, 输出路径=./output/ppt_20260212_153615_6ae10cb1.pptx
+[INFO] 模板模式检查: template_mode=False, 已有幻灯片数=False
+[INFO] 添加标题幻灯片
+[INFO] 开始添加 5 个幻灯片
+[INFO] 处理第 1/5 张幻灯片: 标题='核心财务绩效概览', 布局=big_number
+[INFO] 添加大数据幻灯片: 核心财务绩效概览
+[INFO] 处理第 2/5 张幻灯片: 标题='收入与利润增长趋势', 布局=line_chart
+[INFO] 添加折线图幻灯片: 收入与利润增长趋势
+[INFO] 处理第 3/5 张幻灯片: 标题='成本结构深度优化', 布局=pie_chart
+[INFO] 添加饼图幻灯片: 成本结构深度优化
+[INFO] 处理第 4/5 张幻灯片: 标题='业务线投资回报分析', 布局=bar_chart
+[INFO] 添加条形图幻灯片: 业务线投资回报分析
+[INFO] 处理第 5/5 张幻灯片: 标题='战略实施路线图', 布局=timeline
+[INFO] 添加时间轴幻灯片: 战略实施路线图
+[INFO] 所有幻灯片添加完成
+[INFO] 开始保存PPT到: ./output/ppt_20260212_153615_6ae10cb1.pptx
+[INFO] PPT保存完成: ./output/ppt_20260212_153615_6ae10cb1.pptx
+INFO:     127.0.0.1:53968 - "GET /api/task/6ae10cb1-abbd-427f-8d46-83498450dc12 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53973 - "GET /api/download/6ae10cb1-abbd-427f-8d46-83498450dc12 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54038 - "POST /api/convert?target_format=pdf HTTP/1.1" 200 OK
+[INFO] 执行转换命令: ['/Applications/LibreOffice.app/Contents/MacOS/soffice', '--headless', '--convert-to', 'pdf', '--outdir', '/Users/george/Documents/code/ai-ppt/backend/output', '/Users/george/Documents/code/ai-ppt/backend/output/temp/b51876d5-ade1-4530-9e7e-56a1392973bf_in.pptx']
+[INFO] 转换成功: ./output/b51876d5-ade1-4530-9e7e-56a1392973bf_out.pdf
+INFO:     127.0.0.1:54038 - "GET /api/task/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54060 - "GET /api/task/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54038 - "GET /api/task/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54060 - "GET /api/task/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54061 - "GET /api/download/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54038 - "GET /api/task/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54060 - "GET /api/task/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54063 - "GET /api/download/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54064 - "GET /api/download/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54038 - "GET /api/task/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54065 - "GET /api/download/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54066 - "GET /api/download/b51876d5-ade1-4530-9e7e-56a1392973bf HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [77833]
+INFO:     Stopping reloader process [77830]

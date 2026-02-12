@@ -92,6 +92,32 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [convertTaskId, isConverting]);
 
+  // 轮询PPT生成任务状态
+  useEffect(() => {
+    if (!taskId || !isGeneratingPPT) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const status = await getTaskStatus(taskId);
+        setProgress(status.progress);
+
+        if (status.status === 'completed') {
+          setIsGeneratingPPT(false);
+          clearInterval(interval);
+          window.location.href = getDownloadUrl(taskId);
+        } else if (status.status === 'failed') {
+          setIsGeneratingPPT(false);
+          setError(status.message || 'PPT生成失败');
+          clearInterval(interval);
+        }
+      } catch (error) {
+        console.error('查询PPT生成状态失败:', error);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [taskId, isGeneratingPPT]);
+
   // 处理文件转换
   const handleConvertFile = async (e: React.ChangeEvent<HTMLInputElement>, targetFormat: string) => {
     const file = e.target.files?.[0];

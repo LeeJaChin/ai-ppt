@@ -513,13 +513,15 @@ class PPTGenerator:
 
     def generate(self, title: str, slides: List[SlideContent], output_path: str) -> str:
         try:
+            self.logger.info(f"PPT生成开始: 标题={title}, 幻灯片数量={len(slides)}, 输出路径={output_path}")
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             
             # 如果是模板模式，且模板本身不是空的（即有超过0页），我们通常是在后面追加。
-            # 但用户通常希望“基于模板”生成，如果模板只有母版而没有页面，则直接开始。
+            # 但用户通常希望"基于模板"生成，如果模板只有母版而没有页面，则直接开始。
             # 如果模板有封面页，我们甚至可以考虑直接修改封面页。
             
             has_existing_slides = len(self.prs.slides) > 0
+            self.logger.info(f"模板模式检查: template_mode={self.template_mode}, 已有幻灯片数={has_existing_slides}")
             
             if self.template_mode and has_existing_slides:
                 # 尝试寻找并填充已有的封面
@@ -533,39 +535,59 @@ class PPTGenerator:
                 # 如果没在第一页找到标题位，且模板模式开启，通常我们不主动增加新封面，以免破坏模板结构
                 # 除非用户明确要求（目前逻辑是跳过 TITLE 布局的循环）
             elif not self.template_mode:
+                self.logger.info("添加标题幻灯片")
                 self.add_title_slide(title)
             else:
                 # 模板模式但没页面，还是得加个封面
+                self.logger.info("模板模式下添加标题幻灯片")
                 self.add_title_slide(title)
             
-            for slide in slides:
+            self.logger.info(f"开始添加 {len(slides)} 个幻灯片")
+            for i, slide in enumerate(slides):
+                self.logger.info(f"处理第 {i+1}/{len(slides)} 张幻灯片: 标题='{slide.title}', 布局={slide.layout}")
                 if slide.layout == SlideLayout.TITLE:
                     continue
                 elif slide.layout == SlideLayout.TWO_COLUMN:
+                    self.logger.info(f"添加双栏幻灯片: {slide.title}")
                     self.add_column_slide(slide)
                 elif slide.layout == SlideLayout.PROCESS:
+                    self.logger.info(f"添加流程幻灯片: {slide.title}")
                     self.add_process_slide(slide)
                 elif slide.layout == SlideLayout.DATA_COLUMN:
+                    self.logger.info(f"添加柱状图幻灯片: {slide.title}")
                     self.add_chart_slide(slide, XL_CHART_TYPE.COLUMN_CLUSTERED)
                 elif slide.layout == SlideLayout.DATA_BAR:
+                    self.logger.info(f"添加条形图幻灯片: {slide.title}")
                     self.add_chart_slide(slide, XL_CHART_TYPE.BAR_CLUSTERED)
                 elif slide.layout == SlideLayout.DATA_LINE:
+                    self.logger.info(f"添加折线图幻灯片: {slide.title}")
                     self.add_chart_slide(slide, XL_CHART_TYPE.LINE)
                 elif slide.layout == SlideLayout.DATA_PIE:
+                    self.logger.info(f"添加饼图幻灯片: {slide.title}")
                     self.add_chart_slide(slide, XL_CHART_TYPE.PIE)
                 elif slide.layout == SlideLayout.DATA_AREA:
+                    self.logger.info(f"添加面积图幻灯片: {slide.title}")
                     self.add_chart_slide(slide, XL_CHART_TYPE.AREA)
                 elif slide.layout == SlideLayout.DATA_STACKED:
+                    self.logger.info(f"添加堆积图幻灯片: {slide.title}")
                     self.add_chart_slide(slide, XL_CHART_TYPE.COLUMN_STACKED)
                 elif slide.layout == SlideLayout.TIMELINE:
+                    self.logger.info(f"添加时间轴幻灯片: {slide.title}")
                     self.add_timeline_slide(slide)
                 elif slide.layout == SlideLayout.BIG_NUMBER:
+                    self.logger.info(f"添加大数据幻灯片: {slide.title}")
                     self.add_big_number_slide(slide)
                 elif slide.layout == SlideLayout.THANK_YOU:
+                    self.logger.info(f"添加感谢幻灯片: {slide.title}")
                     self.add_thank_you_slide(slide.title)
                 else:
+                    self.logger.info(f"添加要点幻灯片: {slide.title}")
                     self.add_bullet_slide(slide)
+            self.logger.info("所有幻灯片添加完成")
+            self.logger.info(f"开始保存PPT到: {output_path}")
             self.prs.save(output_path)
+            self.logger.info(f"PPT保存完成: {output_path}")
             return output_path
         except Exception as e:
+            self.logger.error(f"PPT 生成失败: {str(e)}", exc_info=True)
             raise Exception(f"PPT 生成失败: {str(e)}")

@@ -295,6 +295,8 @@ async def generate_ppt(request: GeneratePPTRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"任务创建失败: {str(e)}")
 
+import concurrent.futures
+
 async def process_ppt_generation(task_id: str, request: GeneratePPTRequest):
     try:
         tasks_storage[task_id]["status"] = TaskStatus.PROCESSING
@@ -314,12 +316,19 @@ async def process_ppt_generation(task_id: str, request: GeneratePPTRequest):
             if not os.path.exists(template_path):
                 template_path = None
 
-        generator = PPTGenerator(theme=request.theme, template_path=template_path)
-        file_path = generator.generate(
-            title=request.outline.title,
-            slides=request.outline.slides,
-            output_path=output_path
-        )
+        # 使用线程池执行器来避免阻塞事件循环
+        loop = asyncio.get_event_loop()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            def generate_ppt_sync():
+                generator = PPTGenerator(theme=request.theme, template_path=template_path)
+                return generator.generate(
+                    title=request.outline.title,
+                    slides=request.outline.slides,
+                    output_path=output_path
+                )
+            
+            file_path = await loop.run_in_executor(executor, generate_ppt_sync)
+
         tasks_storage[task_id]["progress"] = 90
         tasks_storage[task_id]["message"] = "正在完成..."
         await asyncio.sleep(0.5)
@@ -329,6 +338,7 @@ async def process_ppt_generation(task_id: str, request: GeneratePPTRequest):
         tasks_storage[task_id]["file_path"] = file_path
         tasks_storage[task_id]["download_url"] = f"/api/download/{task_id}"
     except Exception as e:
+        logger.error(f"PPT生成异常: {str(e)}", exc_info=True)
         tasks_storage[task_id]["status"] = TaskStatus.FAILED
         tasks_storage[task_id]["message"] = f"生成失败: {str(e)}"
         tasks_storage[task_id]["error"] = str(e)
