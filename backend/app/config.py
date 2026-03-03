@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     templates_dir: str = "./templates"
     max_slides: int = 50
     
+    # Redis 配置
+    redis_url: str = "redis://localhost:6379/0"
+    redis_expiry: int = 3600  # 任务状态过期时间（秒）
+    
     class Config:
         env_file = ".env"
         case_sensitive = False

@@ -29,10 +29,17 @@ from .models import (
     OutlineResponse,
     TaskResponse,
     TaskStatus,
+    UserCreate,
+    UserLogin,
+    User,
+    Token,
+    HistoryResponse,
 )
 from .services.ai_factory import AIAdapterFactory
 from .services.ppt_generator import PPTGenerator
 from .services.converter import FileConverter
+from .services.redis_client import redis_client
+from .services.auth import AuthService
 
 # 配置日志
 logging.basicConfig(
@@ -279,12 +286,16 @@ async def generate_outline(request: GenerateOutlineRequest):
 async def generate_ppt(request: GeneratePPTRequest):
     try:
         task_id = str(uuid.uuid4())
-        tasks_storage[task_id] = {
+        task_data = {
             "status": TaskStatus.PENDING,
             "progress": 0,
             "message": "任务已创建",
             "created_at": datetime.now().isoformat(),
         }
+        # 存储到内存
+        tasks_storage[task_id] = task_data
+        # 存储到Redis
+        redis_client.set(f"task:{task_id}", task_data)
         asyncio.create_task(process_ppt_generation(task_id, request))
         return TaskResponse(
             task_id=task_id,
@@ -299,16 +310,23 @@ import concurrent.futures
 
 async def process_ppt_generation(task_id: str, request: GeneratePPTRequest):
     try:
-        tasks_storage[task_id]["status"] = TaskStatus.PROCESSING
-        tasks_storage[task_id]["progress"] = 10
-        tasks_storage[task_id]["message"] = "正在初始化..."
+        # 更新任务状态
+        def update_task_status(status, progress, message, **kwargs):
+            tasks_storage[task_id]["status"] = status
+            tasks_storage[task_id]["progress"] = progress
+            tasks_storage[task_id]["message"] = message
+            for key, value in kwargs.items():
+                tasks_storage[task_id][key] = value
+            # 同时更新Redis
+            redis_client.set(f"task:{task_id}", tasks_storage[task_id])
+
+        update_task_status(TaskStatus.PROCESSING, 10, "正在初始化...")
         os.makedirs(settings.output_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"ppt_{timestamp}_{task_id[:8]}.pptx"
         output_path = os.path.join(settings.output_dir, filename)
 
-        tasks_storage[task_id]["progress"] = 30
-        tasks_storage[task_id]["message"] = "正在生成 PPT..."
+        update_task_status(TaskStatus.PROCESSING, 30, "正在生成 PPT...")
 
         template_path = None
         if request.template_id:
@@ -329,25 +347,43 @@ async def process_ppt_generation(task_id: str, request: GeneratePPTRequest):
             
             file_path = await loop.run_in_executor(executor, generate_ppt_sync)
 
-        tasks_storage[task_id]["progress"] = 90
-        tasks_storage[task_id]["message"] = "正在完成..."
+        update_task_status(TaskStatus.PROCESSING, 90, "正在完成...")
         await asyncio.sleep(0.5)
-        tasks_storage[task_id]["status"] = TaskStatus.COMPLETED
-        tasks_storage[task_id]["progress"] = 100
-        tasks_storage[task_id]["message"] = "PPT 生成完成"
-        tasks_storage[task_id]["file_path"] = file_path
-        tasks_storage[task_id]["download_url"] = f"/api/download/{task_id}"
+        update_task_status(
+            TaskStatus.COMPLETED, 
+            100, 
+            "PPT 生成完成",
+            file_path=file_path,
+            download_url=f"/api/download/{task_id}"
+        )
+        
+        # 尝试从请求中获取用户信息并添加历史记录
+        # 注意：这里简化处理，实际应该从请求上下文中获取用户信息
+        # 由于当前实现中没有传递用户信息，这里暂时注释掉
+        # AuthService.add_history_record(user_id, request.outline.title, task_id, file_path)
+        
     except Exception as e:
         logger.error(f"PPT生成异常: {str(e)}", exc_info=True)
-        tasks_storage[task_id]["status"] = TaskStatus.FAILED
-        tasks_storage[task_id]["message"] = f"生成失败: {str(e)}"
-        tasks_storage[task_id]["error"] = str(e)
+        error_data = {
+            "status": TaskStatus.FAILED,
+            "message": f"生成失败: {str(e)}",
+            "error": str(e)
+        }
+        tasks_storage[task_id].update(error_data)
+        redis_client.set(f"task:{task_id}", tasks_storage[task_id])
 
 @app.get("/api/task/{task_id}", response_model=TaskResponse)
 async def get_task_status(task_id: str):
-    if task_id not in tasks_storage:
-        raise HTTPException(status_code=404, detail="任务不存在")
-    task = tasks_storage[task_id]
+    # 首先从内存中查找
+    if task_id in tasks_storage:
+        task = tasks_storage[task_id]
+    else:
+        # 如果内存中没有，从Redis中查找
+        task = redis_client.get(f"task:{task_id}")
+        if not task:
+            raise HTTPException(status_code=404, detail="任务不存在")
+        # 将Redis中的任务数据加载到内存中
+        tasks_storage[task_id] = task
     return TaskResponse(
         task_id=task_id,
         status=task["status"],
@@ -358,9 +394,14 @@ async def get_task_status(task_id: str):
 
 @app.get("/api/download/{task_id}")
 async def download_ppt(task_id: str):
-    if task_id not in tasks_storage:
-        raise HTTPException(status_code=404, detail="任务不存在")
-    task = tasks_storage[task_id]
+    # 首先从内存中查找
+    if task_id in tasks_storage:
+        task = tasks_storage[task_id]
+    else:
+        # 如果内存中没有，从Redis中查找
+        task = redis_client.get(f"task:{task_id}")
+        if not task:
+            raise HTTPException(status_code=404, detail="任务不存在")
     if task["status"] != TaskStatus.COMPLETED:
         raise HTTPException(status_code=400, detail="文件尚未生成完成")
     file_path = task.get("file_path")
@@ -373,16 +414,91 @@ async def download_ppt(task_id: str):
         media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation"
     )
 
+@app.get("/api/convert/ppt-to-pdf/{task_id}")
+async def convert_ppt_to_pdf(task_id: str):
+    """将生成的PPT转换为PDF用于在线预览"""
+    try:
+        # 首先从内存中查找
+        if task_id in tasks_storage:
+            task = tasks_storage[task_id]
+        else:
+            # 如果内存中没有，从Redis中查找
+            task = redis_client.get(f"task:{task_id}")
+            if not task:
+                raise HTTPException(status_code=404, detail="任务不存在")
+        
+        if task["status"] != TaskStatus.COMPLETED:
+            raise HTTPException(status_code=400, detail="PPT尚未生成完成")
+        
+        ppt_path = task.get("file_path")
+        if not ppt_path or not os.path.exists(ppt_path):
+            raise HTTPException(status_code=404, detail="PPT文件不存在")
+        
+        # 生成PDF路径
+        pdf_path = os.path.splitext(ppt_path)[0] + ".pdf"
+        
+        # 检查PDF是否已经存在
+        if os.path.exists(pdf_path):
+            # 如果存在，直接返回
+            task_id = str(uuid.uuid4())
+            tasks_storage[task_id] = {
+                "status": TaskStatus.COMPLETED,
+                "progress": 100,
+                "message": "PDF预览已生成",
+                "file_path": pdf_path,
+                "download_url": f"/api/download/{task_id}"
+            }
+            redis_client.set(f"task:{task_id}", tasks_storage[task_id])
+            return {
+                "task_id": task_id,
+                "status": TaskStatus.COMPLETED,
+                "progress": 100,
+                "message": "PDF预览已生成",
+                "download_url": f"/api/download/{task_id}"
+            }
+        
+        # 调用LibreOffice转换
+        success = convert_with_libreoffice(ppt_path, pdf_path)
+        
+        if success:
+            task_id = str(uuid.uuid4())
+            tasks_storage[task_id] = {
+                "status": TaskStatus.COMPLETED,
+                "progress": 100,
+                "message": "PDF预览生成完成",
+                "file_path": pdf_path,
+                "download_url": f"/api/download/{task_id}"
+            }
+            redis_client.set(f"task:{task_id}", tasks_storage[task_id])
+            return {
+                "task_id": task_id,
+                "status": TaskStatus.COMPLETED,
+                "progress": 100,
+                "message": "PDF预览生成完成",
+                "download_url": f"/api/download/{task_id}"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="转换PDF失败")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"PPT转PDF失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"转换PDF失败: {str(e)}")
+
 @app.post("/api/convert", response_model=TaskResponse)
 async def convert_file(file: UploadFile = File(...), target_format: str = "pdf"):
     ext = os.path.splitext(file.filename)[1].lower()
     task_id = str(uuid.uuid4())
-    tasks_storage[task_id] = {
+    task_data = {
         "status": TaskStatus.PENDING,
         "progress": 0,
         "message": "转换任务已启动",
         "created_at": datetime.now().isoformat(),
     }
+    # 存储到内存
+    tasks_storage[task_id] = task_data
+    # 存储到Redis
+    redis_client.set(f"task:{task_id}", task_data)
     temp_dir = os.path.join(settings.output_dir, "temp")
     os.makedirs(temp_dir, exist_ok=True)
     input_filename = f"{task_id}_in{ext}"
@@ -402,17 +518,28 @@ async def convert_file(file: UploadFile = File(...), target_format: str = "pdf")
 async def process_conversion(task_id: str, input_path: str, output_path: str, in_ext: str, out_ext: str):
     """处理文件转换后台任务"""
     try:
-        tasks_storage[task_id]["status"] = TaskStatus.PROCESSING
-        tasks_storage[task_id]["progress"] = 20
+        # 更新任务状态的函数
+        def update_task_status(status, progress, message, **kwargs):
+            tasks_storage[task_id]["status"] = status
+            tasks_storage[task_id]["progress"] = progress
+            tasks_storage[task_id]["message"] = message
+            for key, value in kwargs.items():
+                tasks_storage[task_id][key] = value
+            # 同时更新Redis
+            redis_client.set(f"task:{task_id}", tasks_storage[task_id])
+
+        update_task_status(TaskStatus.PROCESSING, 20, "正在处理文件...")
 
         success = False
 
         # 1. PPT/Word -> PDF (使用 LibreOffice)
         if out_ext == '.pdf' and in_ext in ['.ppt', '.pptx', '.doc', '.docx']:
+            update_task_status(TaskStatus.PROCESSING, 40, "正在转换为PDF...")
             success = convert_with_libreoffice(input_path, output_path)
 
         # 2. PDF -> Word (使用 pdf2docx)
         elif in_ext == '.pdf' and out_ext in ['.docx', '.doc']:
+            update_task_status(TaskStatus.PROCESSING, 40, "正在转换为Word...")
             real_output = output_path
             if output_path.endswith('.doc'):
                 real_output = output_path + 'x'
@@ -422,6 +549,7 @@ async def process_conversion(task_id: str, input_path: str, output_path: str, in
 
         # 3. PDF -> PPT (使用 pdf2image + python-pptx) <--- 只有这里变了
         elif in_ext == '.pdf' and out_ext in ['.pptx', '.ppt']:
+            update_task_status(TaskStatus.PROCESSING, 40, "正在转换为PPT...")
             # 处理 .ppt 后缀兼容
             real_output = output_path
             if output_path.endswith('.ppt'):
@@ -437,17 +565,23 @@ async def process_conversion(task_id: str, input_path: str, output_path: str, in
             raise HTTPException(status_code=400, detail=f"不支持的转换类型: {in_ext} to {out_ext}")
 
         if success:
-            tasks_storage[task_id]["status"] = TaskStatus.COMPLETED
-            tasks_storage[task_id]["progress"] = 100
-            tasks_storage[task_id]["message"] = "转换完成"
-            tasks_storage[task_id]["file_path"] = output_path
-            tasks_storage[task_id]["download_url"] = f"/api/download/{task_id}"
+            update_task_status(
+                TaskStatus.COMPLETED, 
+                100, 
+                "转换完成",
+                file_path=output_path,
+                download_url=f"/api/download/{task_id}"
+            )
         else:
             raise Exception("转换未能生成目标文件")
 
     except Exception as e:
-        tasks_storage[task_id]["status"] = TaskStatus.FAILED
-        tasks_storage[task_id]["message"] = f"转换失败: {str(e)}"
+        error_data = {
+            "status": TaskStatus.FAILED,
+            "message": f"转换失败: {str(e)}"
+        }
+        tasks_storage[task_id].update(error_data)
+        redis_client.set(f"task:{task_id}", tasks_storage[task_id])
         logger.error(f"转换任务 {task_id} 失败: {str(e)}", exc_info=True)
     finally:
         # 清理临时输入文件
@@ -480,6 +614,155 @@ def convert_pdf_to_docx_file(input_path: str, output_path: str) -> bool:
     except Exception as e:
         logger.error(f"PDF 转 Word 失败: {str(e)}", exc_info=True)
         return False
+
+# 认证相关的API端点
+@app.post("/api/auth/register")
+async def register(user_data: UserCreate):
+    """用户注册"""
+    try:
+        # 检查用户是否已存在
+        existing_user = AuthService.get_user_by_email(user_data.email)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="该邮箱已被注册")
+        
+        # 创建新用户
+        user = AuthService.create_user(user_data.name, user_data.email, user_data.password)
+        
+        # 生成访问令牌
+        access_token = AuthService.create_access_token(data={"sub": user["id"]})
+        
+        return Token(
+            access_token=access_token,
+            token_type="bearer",
+            user=User(
+                id=user["id"],
+                name=user["name"],
+                email=user["email"],
+                is_active=user["is_active"],
+                created_at=user["created_at"]
+            )
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"注册失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="注册失败")
+
+@app.post("/api/auth/login")
+async def login(login_data: UserLogin):
+    """用户登录"""
+    try:
+        # 查找用户
+        user = AuthService.get_user_by_email(login_data.email)
+        if not user:
+            raise HTTPException(status_code=401, detail="邮箱或密码错误")
+        
+        # 验证密码
+        if not AuthService.verify_password(login_data.password, user["password"]):
+            raise HTTPException(status_code=401, detail="邮箱或密码错误")
+        
+        # 生成访问令牌
+        access_token = AuthService.create_access_token(data={"sub": user["id"]})
+        
+        return Token(
+            access_token=access_token,
+            token_type="bearer",
+            user=User(
+                id=user["id"],
+                name=user["name"],
+                email=user["email"],
+                is_active=user["is_active"],
+                created_at=user["created_at"]
+            )
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"登录失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="登录失败")
+
+@app.get("/api/auth/me")
+async def get_current_user(request):
+    """获取当前用户信息"""
+    try:
+        # 从请求头获取令牌
+        auth_header = request.headers.get("Authorization")
+        
+        if not auth_header:
+            raise HTTPException(status_code=401, detail="未提供认证令牌")
+        
+        token = auth_header.replace("Bearer ", "")
+        payload = AuthService.decode_token(token)
+        
+        if not payload:
+            raise HTTPException(status_code=401, detail="无效的认证令牌")
+        
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="无效的认证令牌")
+        
+        # 从auth模块导入users_db
+        from app.services.auth import users_db
+        
+        # 查找用户
+        user = users_db.get(user_id)
+        if not user:
+            raise HTTPException(status_code=401, detail="用户不存在")
+        
+        return User(
+            id=user["id"],
+            name=user["name"],
+            email=user["email"],
+            is_active=user["is_active"],
+            created_at=user["created_at"]
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取用户信息失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="获取用户信息失败")
+
+@app.get("/api/history")
+async def get_history(request):
+    """获取用户历史记录"""
+    try:
+        # 从请求头获取令牌
+        auth_header = request.headers.get("Authorization")
+        
+        if not auth_header:
+            raise HTTPException(status_code=401, detail="未提供认证令牌")
+        
+        token = auth_header.replace("Bearer ", "")
+        payload = AuthService.decode_token(token)
+        
+        if not payload:
+            raise HTTPException(status_code=401, detail="无效的认证令牌")
+        
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="无效的认证令牌")
+        
+        # 获取用户历史记录
+        history = AuthService.get_user_history(user_id)
+        
+        return HistoryResponse(
+            items=[
+                HistoryItem(
+                    id=item["id"],
+                    user_id=item["user_id"],
+                    title=item["title"],
+                    task_id=item["task_id"],
+                    file_path=item.get("file_path"),
+                    created_at=item["created_at"]
+                ) for item in history
+            ],
+            total=len(history)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取历史记录失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="获取历史记录失败")
 
 if __name__ == "__main__":
     import uvicorn

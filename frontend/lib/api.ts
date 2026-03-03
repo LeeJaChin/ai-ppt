@@ -15,6 +15,20 @@ const apiClient = axios.create({
   },
 });
 
+// 请求拦截器，添加认证令牌
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // 类型定义
 export interface SlideContent {
   title: string;
@@ -178,4 +192,110 @@ export async function convertFile(file: File, targetFormat: string): Promise<Tas
     console.error('发起转换失败:', error);
     throw new Error(error.response?.data?.detail || '发起转换失败');
   }
+}
+
+// 认证相关的类型定义
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
+export interface HistoryItem {
+  id: string;
+  user_id: string;
+  title: string;
+  task_id: string;
+  file_path?: string;
+  created_at: string;
+}
+
+export interface HistoryResponse {
+  items: HistoryItem[];
+  total: number;
+}
+
+// 认证相关的API调用
+export async function register(name: string, email: string, password: string): Promise<TokenResponse> {
+  try {
+    const response = await apiClient.post<TokenResponse>('/api/auth/register', {
+      name,
+      email,
+      password,
+    });
+    // 存储令牌
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    return response.data;
+  } catch (error: any) {
+    console.error('注册失败:', error);
+    throw new Error(error.response?.data?.detail || '注册失败');
+  }
+}
+
+export async function login(email: string, password: string): Promise<TokenResponse> {
+  try {
+    const response = await apiClient.post<TokenResponse>('/api/auth/login', {
+      email,
+      password,
+    });
+    // 存储令牌
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    return response.data;
+  } catch (error: any) {
+    console.error('登录失败:', error);
+    throw new Error(error.response?.data?.detail || '登录失败');
+  }
+}
+
+export function logout(): void {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('user');
+}
+
+export async function getCurrentUser(): Promise<User> {
+  try {
+    const response = await apiClient.get<User>('/api/auth/me');
+    return response.data;
+  } catch (error: any) {
+    console.error('获取用户信息失败:', error);
+    throw new Error(error.response?.data?.detail || '获取用户信息失败');
+  }
+}
+
+export async function getHistory(): Promise<HistoryResponse> {
+  try {
+    const response = await apiClient.get<HistoryResponse>('/api/history');
+    return response.data;
+  } catch (error: any) {
+    console.error('获取历史记录失败:', error);
+    throw new Error(error.response?.data?.detail || '获取历史记录失败');
+  }
+}
+
+// 获取存储的用户信息
+export function getStoredUser(): User | null {
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    try {
+      return JSON.parse(userStr);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+// 检查是否已登录
+export function isAuthenticated(): boolean {
+  return !!localStorage.getItem('access_token');
 }

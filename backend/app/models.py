@@ -103,3 +103,56 @@ class ErrorResponse(BaseModel):
     error: str = Field(..., description="错误类型")
     message: str = Field(..., description="错误消息")
     detail: Optional[str] = Field(None, description="详细信息")
+
+
+class UserBase(BaseModel):
+    """用户基础模型"""
+    email: str = Field(..., description="用户邮箱")
+    name: str = Field(..., description="用户名称")
+
+
+class UserCreate(UserBase):
+    """用户创建模型"""
+    password: str = Field(..., min_length=6, description="用户密码")
+
+
+class UserLogin(BaseModel):
+    """用户登录模型"""
+    email: str = Field(..., description="用户邮箱")
+    password: str = Field(..., description="用户密码")
+
+
+class User(UserBase):
+    """用户响应模型"""
+    id: str = Field(..., description="用户ID")
+    is_active: bool = Field(default=True, description="用户是否激活")
+    created_at: str = Field(..., description="创建时间")
+
+    class Config:
+        from_attributes = True
+
+
+class Token(BaseModel):
+    """令牌响应模型"""
+    access_token: str = Field(..., description="访问令牌")
+    token_type: str = Field(default="bearer", description="令牌类型")
+    user: User = Field(..., description="用户信息")
+
+
+class HistoryItem(BaseModel):
+    """历史记录项模型"""
+    id: str = Field(..., description="历史记录ID")
+    user_id: str = Field(..., description="用户ID")
+    title: str = Field(..., description="PPT标题")
+    task_id: str = Field(..., description="任务ID")
+    created_at: str = Field(..., description="创建时间")
+    file_path: Optional[str] = Field(None, description="文件路径")
+
+    class Config:
+        from_attributes = True
+
+
+class HistoryResponse(BaseModel):
+    """历史记录响应模型"""
+    items: List[HistoryItem] = Field(..., description="历史记录列表")
+    total: int = Field(..., description="总记录数")

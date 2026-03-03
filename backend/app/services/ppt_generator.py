@@ -4,7 +4,7 @@ PPT 生成引擎
 """
 import os
 import logging
-from typing import List
+from typing import List, Optional
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
@@ -13,6 +13,9 @@ from pptx.enum.shapes import MSO_SHAPE, PP_PLACEHOLDER
 from pptx.chart.data import ChartData
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 from ..models import SlideContent, ThemeStyle, SlideLayout
+from .image_generator import image_generator
+import requests
+from io import BytesIO
 
 
 class PPTGenerator:
@@ -76,6 +79,69 @@ class PPTGenerator:
         run.font.size = Pt(size)
         run.font.color.rgb = color
         run.font.bold = bold
+
+    def _download_image(self, image_url: str) -> Optional[BytesIO]:
+        """
+        从URL下载图片
+        
+        Args:
+            image_url: 图片URL
+            
+        Returns:
+            图片字节流
+        """
+        try:
+            response = requests.get(image_url, timeout=30)
+            response.raise_for_status()
+            return BytesIO(response.content)
+        except Exception as e:
+            self.logger.error(f"Failed to download image: {str(e)}")
+            return None
+
+    def _add_image_to_slide(self, slide, image_stream: BytesIO, left, top, width, height):
+        """
+        向幻灯片添加图片
+        
+        Args:
+            slide: 幻灯片对象
+            image_stream: 图片字节流
+            left: 左侧位置
+            top: 顶部位置
+            width: 宽度
+            height: 高度
+        """
+        try:
+            slide.shapes.add_picture(image_stream, left, top, width, height)
+        except Exception as e:
+            self.logger.error(f"Failed to add image to slide: {str(e)}")
+
+    async def _generate_and_add_image(self, slide, slide_data: SlideContent):
+        """
+        为幻灯片生成并添加相关图片
+        
+        Args:
+            slide: 幻灯片对象
+            slide_data: 幻灯片数据
+        """
+        if not image_generator.enabled:
+            return
+        
+        # 生成图片描述
+        prompt = f"{slide_data.title}. {slide_data.notes or ''} {', '.join(slide_data.bullet_points or [])}"
+        prompt = prompt[:500]  # 限制长度
+        
+        # 生成图片
+        image_url = await image_generator.generate_image(prompt)
+        if not image_url:
+            return
+        
+        # 下载图片
+        image_stream = self._download_image(image_url)
+        if not image_stream:
+            return
+        
+        # 添加图片到幻灯片
+        self._add_image_to_slide(slide, image_stream, Inches(6), Inches(2), Inches(6), Inches(4))
 
     def _setup_background(self, slide):
         if self.template_mode:

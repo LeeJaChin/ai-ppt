@@ -7,14 +7,16 @@
   - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 23s
+ ✓ Ready in 18.4s
  ○ Compiling / ...
- ✓ Compiled / in 1103ms (679 modules)
- GET / 200 in 1343ms
- ✓ Compiled in 173ms (305 modules)
- ✓ Compiled in 437ms (679 modules)
- GET / 200 in 92ms
- ✓ Compiled in 373ms (679 modules)
- ✓ Compiled in 260ms (679 modules)
- GET / 200 in 92ms
+ ✓ Compiled / in 1195ms (731 modules)
+ GET /?ide_webview_request_time=1772503103337 200 in 1489ms
+ ✓ Compiled in 250ms (331 modules)
+ ✓ Compiled /_not-found in 120ms (720 modules)
+ GET /@vite/client 404 in 186ms
 [?25h
+npm notice 
+npm notice New major version of npm available! 9.6.7 -> 11.11.0
+npm notice Changelog: <https://github.com/npm/cli/releases/tag/v11.11.0>
+npm notice Run `npm install -g npm@11.11.0` to update!
+npm notice 
